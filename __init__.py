@@ -84,14 +84,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     return True
 
 
-async def async_unload_entry(hass, config_entry):
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Unload a config entry."""
-    await asyncio.wait(
-        [
-            hass.async_create_task(hass.config_entries.async_forward_entry_unload(config_entry, component))
-            for component in COMPONENT_TYPES
-        ]
-    )
-    hass.data[DOMAIN].pop(config_entry.entry_id)
+    await hass.config_entries.async_unload_platforms(entry, COMPONENT_TYPES)
+    hass.data[DOMAIN].pop(entry.entry_id)
 
     return True
