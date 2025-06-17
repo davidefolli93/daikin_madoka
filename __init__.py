@@ -14,7 +14,7 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.typing import HomeAssistantType
+from homeassistant.core import HomeAssistant
 
 from . import config_flow  # noqa: F401
 from .const import CONTROLLERS, DOMAIN
@@ -54,7 +54,7 @@ async def async_setup(hass, config):
     return True
 
 
-async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Pass conf to all the components."""
 
     controllers = {}
@@ -79,22 +79,18 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {CONTROLLERS: controllers}
-    for component in COMPONENT_TYPES:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(entry, component)
-        )
+
+    await hass.config_entries.async_forward_entry_setups(entry, COMPONENT_TYPES)
 
     return True
 
 
-async def async_unload_entry(hass, config_entry):
+async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Unload a config entry."""
-    await asyncio.wait(
-        [
-            hass.async_create_task(hass.config_entries.async_forward_entry_unload(config_entry, component))
-            for component in COMPONENT_TYPES
-        ]
+
+    unload_ok = await hass.config_entries.async_unload_platforms(
+        config_entry, COMPONENT_TYPES
     )
     hass.data[DOMAIN].pop(config_entry.entry_id)
 
-    return True
+    return unload_ok
