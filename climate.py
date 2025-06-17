@@ -13,7 +13,12 @@ from pymadoka import (
 )
 from pymadoka.connection import ConnectionStatus
 
-from homeassistant.components.climate import ClimateEntity, HVACMode, HVACAction, ClimateEntityFeature
+from homeassistant.components.climate import (
+    ClimateEntity,
+    HVACMode,
+    HVACAction,
+    ClimateEntityFeature,
+)
 from homeassistant.components.climate.const import (
     FAN_AUTO,
     FAN_HIGH,
@@ -98,7 +103,12 @@ class DaikinMadokaClimate(ClimateEntity):
     @property
     def supported_features(self):
         """Return the list of supported features."""
-        return ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
+        return (
+            ClimateEntityFeature.TARGET_TEMPERATURE
+            | ClimateEntityFeature.FAN_MODE
+            | ClimateEntityFeature.TURN_ON
+            | ClimateEntityFeature.TURN_OFF
+        )
 
     @property
     def available(self):
@@ -369,4 +379,3 @@ class DaikinMadokaClimate(ClimateEntity):
             "sw_version": sw_version,
             "via_device": (DOMAIN, self.unique_id),
         }
-
